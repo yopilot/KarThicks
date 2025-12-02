@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P Screen Share</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖥️ P2P Screen Share</h1>
+            <p class="subtitle">Share your screen with friends - No server needed!</p>
+        </header>
+
+        <div class="connection-panel">
+            <div class="id-section">
+                <label>Your ID:</label>
+                <div class="id-display">
+                    <input type="text" id="myId" readonly>
+                    <button id="copyId" title="Copy ID">📋</button>
+                </div>
+            </div>
+
+            <div class="connect-section">
+                <label>Friend's ID:</label>
+                <div class="connect-input">
+                    <input type="text" id="peerId" placeholder="Paste friend's ID here">
+                    <button id="connectBtn">Connect</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="shareScreen" disabled>
+                <span class="icon">🖥️</span>
+                <span>Share Screen</span>
+            </button>
+            <button id="stopShare" disabled>
+                <span class="icon">⏹️</span>
+                <span>Stop Sharing</span>
+            </button>
+            <div class="audio-controls">
+                <label class="toggle">
+                    <input type="checkbox" id="shareAudio" checked>
+                    <span class="slider"></span>
+                    <span class="label">🔊 System Audio</span>
+                </label>
+                <label class="toggle">
+                    <input type="checkbox" id="shareMic" checked>
+                    <span class="slider"></span>
+                    <span class="label">🎤 Microphone</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span id="connectionStatus" class="status disconnected">⚪ Not Connected</span>
+            <span id="streamStatus" class="status">⚪ Not Sharing</span>
+        </div>
+
+        <div class="video-container">
+            <div class="video-wrapper local-video">
+                <video id="localVideo" autoplay muted playsinline></video>
+                <span class="video-label">Your Screen</span>
+            </div>
+            <div class="video-wrapper remote-video">
+                <video id="remoteVideo" autoplay playsinline></video>
+                <span class="video-label">Friend's Screen</span>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>How to use:</h3>
+            <ol>
+                <li>Copy your ID and send it to your friend</li>
+                <li>Paste your friend's ID and click Connect</li>
+                <li>Once connected, click "Share Screen" to start sharing</li>
+                <li>Enable/disable system audio and microphone as needed</li>
+            </ol>
+            <p class="note">⚠️ Both users need to be on this page. Connection is peer-to-peer using WebRTC.</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
