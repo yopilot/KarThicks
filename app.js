@@ -9,16 +9,36 @@ class P2PScreenShare {
         this.isInitiator = false;
         this.pendingCandidates = [];
         
-        // Public STUN servers for NAT traversal
+        // STUN and TURN servers for NAT traversal
+        // TURN servers act as relay when direct connection fails
         this.config = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' },
-                { urls: 'stun:stun3.l.google.com:19302' },
-                { urls: 'stun:stun4.l.google.com:19302' },
-                { urls: 'stun:stun.stunprotocol.org:3478' }
-            ]
+                // Free TURN servers from Open Relay Project
+                {
+                    urls: 'turn:openrelay.metered.ca:80',
+                    username: 'openrelayproject',
+                    credential: 'openrelayproject'
+                },
+                {
+                    urls: 'turn:openrelay.metered.ca:443',
+                    username: 'openrelayproject',
+                    credential: 'openrelayproject'
+                },
+                {
+                    urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+                    username: 'openrelayproject',
+                    credential: 'openrelayproject'
+                },
+                // Additional free TURN server
+                {
+                    urls: 'turn:relay1.expressturn.com:3478',
+                    username: 'efPBGNXQZVVNRJOVZO',
+                    credential: 'a1Ic5e2h5XgdKlqh'
+                }
+            ],
+            iceCandidatePoolSize: 10
         };
         
         this.initElements();
@@ -231,16 +251,35 @@ class P2PScreenShare {
             if (this.peerConnection.iceGatheringState === 'complete') {
                 resolve();
             } else {
+                let timeout;
                 const checkState = () => {
                     if (this.peerConnection.iceGatheringState === 'complete') {
                         this.peerConnection.removeEventListener('icegatheringstatechange', checkState);
+                        clearTimeout(timeout);
                         resolve();
                     }
                 };
                 this.peerConnection.addEventListener('icegatheringstatechange', checkState);
                 
-                // Timeout after 5 seconds
-                setTimeout(resolve, 5000);
+                // Also listen for individual candidates - resolve after no new candidates for 2 seconds
+                let lastCandidateTime = Date.now();
+                const candidateCheck = setInterval(() => {
+                    if (Date.now() - lastCandidateTime > 2000) {
+                        clearInterval(candidateCheck);
+                        clearTimeout(timeout);
+                        resolve();
+                    }
+                }, 500);
+                
+                this.peerConnection.addEventListener('icecandidate', () => {
+                    lastCandidateTime = Date.now();
+                });
+                
+                // Timeout after 10 seconds max
+                timeout = setTimeout(() => {
+                    clearInterval(candidateCheck);
+                    resolve();
+                }, 10000);
             }
         });
     }
